@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --whatsapp-green-light: #25d366;
+  --whatsapp-green-dark: #128c7e;
+  --whatsapp-green-btn: #075e54;
+  --whatsapp-green-btn-hover: #128c7e;
+}
+
+.bg-whatsapp-green-light {
+  background-color: var(--whatsapp-green-light);
+}
+
+.bg-whatsapp-green-dark {
+  background-color: var(--whatsapp-green-dark);
+}
+
+.bg-whatsapp-green-btn {
+  background-color: var(--whatsapp-green-btn);
+}
+
+.bg-whatsapp-green-btn-hover {
+  background-color: var(--whatsapp-green-btn-hover);
+}
