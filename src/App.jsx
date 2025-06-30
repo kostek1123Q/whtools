@@ -1,70 +1,53 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-const tools = [
-  { name: "Link Shortener", href: "/link-shortener", color: "green-500" },
-  { name: "WhatsApp Button", href: "/whatsapp-button", color: "blue-500" },
-  { name: "Status Saver", href: "/status-saver", color: "yellow-400" },
-  { name: "Link Generator", href: "/link-generator", color: "purple-500" },
-  { name: "AI Generator", href: "/ai-generator", color: "teal-500" },
-];
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
 
 export default function App() {
-  const [dark, setDark] = useState(false);
+  const [url, setUrl] = useState("");
+  const [shortUrl, setShortUrl] = useState("");
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setDark(mq.matches);
-
-    const listener = (e) => setDark(e.matches);
-    mq.addEventListener("change", listener);
-    return () => mq.removeEventListener("change", listener);
-  }, []);
-
-  useEffect(() => {
-    if (dark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
+  const shortenUrl = async () => {
+    if (!url) return alert("Podaj URL!");
+    try {
+      const res = await fetch(`${API_BASE}/api/shorten`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        alert(data.error);
+      } else {
+        setShortUrl(data.shortUrl);
+      }
+    } catch {
+      alert("Błąd sieci");
     }
-  }, [dark]);
+  };
 
   return (
-    <div className="min-h-screen bg-[#25D366] dark:bg-[#075E54] text-white flex flex-col transition-colors duration-500">
-      <header className="flex justify-between items-center p-4 border-b border-green-700">
-        <h1 className="text-2xl font-bold select-none">whTools - WhatsApp Tools</h1>
-        <button
-          onClick={() => setDark(!dark)}
-          className="bg-green-800 px-3 py-1 rounded hover:bg-green-900 transition"
-          aria-label="Toggle dark mode"
-        >
-          {dark ? "Light Mode" : "Dark Mode"}
-        </button>
-      </header>
+    <main className="min-h-screen bg-whatsapp-green-light dark:bg-whatsapp-green-dark text-white p-4 flex flex-col items-center">
+      <h1 className="text-4xl mb-6 font-bold">whTools - WhatsApp Tools</h1>
 
-      <main className="flex-grow container mx-auto px-6 py-10 max-w-3xl text-center">
-        <h2 className="text-4xl font-semibold mb-4">Witaj na whTools!</h2>
-        <p className="mb-12 text-lg leading-relaxed max-w-xl mx-auto">
-          whTools to zestaw prostych narzędzi związanych z WhatsApp i nie tylko.<br />
-          Znajdziesz tu generator linków, przycisk WhatsApp na stronę, zapis statusów oraz inteligentnego asystenta AI.
+      <input
+        type="text"
+        placeholder="Wklej URL do skrócenia"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        className="p-2 rounded text-black w-full max-w-md"
+      />
+      <button
+        onClick={shortenUrl}
+        className="mt-4 bg-whatsapp-green-btn hover:bg-whatsapp-green-btn-hover px-4 py-2 rounded"
+      >
+        Skróć URL
+      </button>
+
+      {shortUrl && (
+        <p className="mt-6 bg-white text-black p-2 rounded max-w-md break-all">
+          Skrócony link: <a href={shortUrl} target="_blank">{shortUrl}</a>
         </p>
-
-        <nav className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {tools.map(({ name, href, color }) => (
-            <a
-              key={name}
-              href={href}
-              className={`py-4 rounded-lg font-semibold shadow-lg transform transition hover:scale-105 bg-${color}`}
-              style={{ backgroundColor: color.includes('-') ? undefined : color }} // fallback for tailwind jit
-            >
-              {name}
-            </a>
-          ))}
-        </nav>
-      </main>
-
-      <footer className="p-4 text-center text-sm opacity-70">
-        &copy; {new Date().getFullYear()} whTools — Kostek1123Q
-      </footer>
-    </div>
+      )}
+    </main>
   );
 }
